@@ -1,0 +1,32 @@
+# ============================================
+# DÉPENDANCES PROJET MULTI-AGENT INDUSTRIEL
+# ============================================
+
+# Core Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.14.0
+matplotlib>=3.7.0
+
+# AI/LLM
+google-generativeai>=0.3.0
+
+# Web Interface
+streamlit>=1.31.0
+
+# Utils
+python-dateutil>=2.8.2
+
+# Optional: Pour export PDF (Phase 2)
+# reportlab>=4.0.0
+# pypdf2>=3.0.0
+
+# Optional: Pour base de données (Phase 2)
+# sqlalchemy>=2.0.0
+# psycopg2-binary>=2.9.0
+
+# Optional: Pour notifications (Phase 2)
+# requests>=2.31.0
+# python-dotenv>=1.0.0

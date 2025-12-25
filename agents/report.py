@@ -1,32 +1,56 @@
 from agents.base_agent import BaseAgent
-'''class ReportAgent(BaseAgent):
-    def generate_report(self, decision, explanation):
-        report = f"""
-        RAPPORT INDUSTRIEL
-        -------------------
-        Décision : {decision}
-
-        Explication :
-        {explanation}
-        """
-        return report
-'''
-
+from datetime import datetime
 
 class ReportAgent(BaseAgent):
-    def generate_report(self, summary, llm_text):
+    def generate_report(self, summary, anomalies, llm_result, decisions, validation_history):
+        """Génère un rapport complet avec traçabilité"""
+        self.send_message("Génération du rapport final")
+        
+        report = f"""
+╔═══════════════════════════════════════════════════════╗
+║     RAPPORT DE PERFORMANCE INDUSTRIELLE               ║
+║     Priorité: {decisions['priority']}                              ║
+╚═══════════════════════════════════════════════════════╝
 
-        return f"""
-RAPPORT DE PERFORMANCE INDUSTRIELLE
-=================================
+📊 KPI CLÉS
+-----------
+• Utilisation moyenne: {summary['avg_utilization']:.2%}
+• Efficacité énergétique: {summary['avg_energy_efficiency']:.2f} kW/h
+• Stabilité moyenne: {summary['avg_stability']:.2f}
+• Machines totales: {summary['total_machines']}
+• Machines critiques: {summary['critical_machine_count']}
 
-KPI clés :
-{summary}
+🔍 ANOMALIES DÉTECTÉES
+---------------------
+• Températures élevées: {len(anomalies['high_temperature'])} machines
+• Vibrations élevées: {len(anomalies['high_vibration'])} machines
+• Pics énergétiques: {len(anomalies['energy_spikes'])} machines
+• Machines à l'arrêt: {len(anomalies['zero_utilization'])}
 
-Analyse experte :
-{llm_text}
+🤖 ANALYSE EXPERTE (LLM)
+-----------------------
+{llm_result['text']}
 
-Conclusion :
-La production peut être optimisée via un meilleur équilibrage des charges et une réduction
-des dérives énergétiques et opérationnelles.
+⚡ DÉCISIONS RECOMMANDÉES
+------------------------
 """
+        for i, decision in enumerate(decisions['decisions'], 1):
+            report += f"{i}. {decision}\n"
+        
+        report += f"""
+
+🔄 TRAÇABILITÉ
+-------------
+Validations effectuées: {len(validation_history)}
+"""
+        for val in validation_history:
+            status = "✅" if val['valid'] else "❌"
+            report += f"{status} {val['agent']}: {val['message']}\n"
+        
+        report += f"""
+
+{'='*60}
+Rapport généré le {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+        
+        return report
