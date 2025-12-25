@@ -42,7 +42,7 @@ Au lieu d’un pipeline linéaire, elle introduit des **boucles de feedback**, d
   "row_count": int,
   "columns": list
 }
-```md
+```python
 
 2️⃣ ValidationAgent
 
