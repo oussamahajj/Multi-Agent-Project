@@ -1,0 +1,232 @@
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║     🏭 RAPPORT DE PERFORMANCE INDUSTRIELLE                       ║
+║        Système Multi-Agent Intelligent                           ║
+║                                                                  ║
+║     🟠 Priorité: HIGH                                     ║
+║     📅 Date: 2025-12-25 21:45:35                            ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    📊 RÉSUMÉ EXÉCUTIF                            │
+└──────────────────────────────────────────────────────────────────┘
+
+État Global: ⚠️ ATTENTION REQUISE
+
+• Parc de 75 machines analysé
+• Taux d'utilisation moyen: 87.3%
+• Score de santé global: 80.9/100
+• Machines nécessitant intervention: 10 (13.3%)
+• Décisions générées: 4
+• Actions prioritaires: 0
+
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    📈 INDICATEURS CLÉS (KPI)                     │
+└──────────────────────────────────────────────────────────────────┘
+
+Performance Opérationnelle:
+  • Utilisation moyenne: 87.31%
+  • Utilisation médiane: 100.00%
+  • Machines bien utilisées (>70%): 60
+
+Efficacité Énergétique:
+  • Efficacité moyenne: 0.00 kW/h
+  • Écart-type: 0.01
+
+Santé du Parc:
+  • Score moyen: 80.9/100
+  • Score minimum: 33.3/100
+  • Machines en bonne santé (>80): 42
+  • Machines critiques (<50): 3
+
+Stabilité:
+  • Indice moyen: 31.36
+  • Machines instables: 10
+
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    🔍 ANOMALIES DÉTECTÉES                        │
+└──────────────────────────────────────────────────────────────────┘
+
+  🌡️ Températures élevées: 4 machines
+    → M0015, M0024, M0046, M0055
+  📳 Vibrations élevées: 4 machines
+    → M0015, M0035, M0038, M0055
+  ⚡ Pics énergétiques: 4 machines
+    → M0049, M0050, M0060, M0075
+  🔊 Niveaux sonores élevés: 4 machines
+    → M0015, M0035, M0038, M0055
+  🔧 Maintenance en retard: 4 machines
+    → M0021, M0044, M0052, M0075
+  ❌ Taux d'erreur élevé: 7 machines
+    → M0001, M0011, M0024, M0029, M0049... (+2)
+  ⚠️ Multi-facteurs critiques: 2 machines
+    → M0015, M0055
+
+  📊 Total anomalies détectées: 29
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    🤖 ANALYSE INTELLIGENCE ARTIFICIELLE           │
+└──────────────────────────────────────────────────────────────────┘
+
+Statut LLM: ⚠️ FALLBACK
+
+
+═══════════════════════════════════════════════════════════
+         ANALYSE DE PERFORMANCE INDUSTRIELLE
+                   (Mode Simplifié)
+═══════════════════════════════════════════════════════════
+
+📊 DIAGNOSTIC GLOBAL
+--------------------
+État du parc: NORMAL
+- 75 machines analysées
+- 10 machines en situation critique (13.3% du parc)
+- Taux d'utilisation moyen: 87.3%
+- Score de santé moyen: 80.9/100
+
+🚨 PROBLÈMES IDENTIFIÉS
+-----------------------
+1. SURCHAUFFE: 4 machines avec température anormale
+2. VIBRATIONS: 4 machines avec vibrations excessives
+3. MAINTENANCE: 4 machines en retard de maintenance
+
+⚡ ACTIONS RECOMMANDÉES
+----------------------
+1. [URGENTE] Inspecter immédiatement les machines avec anomalies thermiques
+2. [HAUTE] Planifier la maintenance des 4 machines en retard
+3. [HAUTE] Diagnostiquer les machines avec vibrations anormales
+4. [MOYENNE] Investiguer les causes des faibles taux d'utilisation
+5. [MOYENNE] Mettre en place un monitoring renforcé
+
+📈 INDICATEURS À SURVEILLER
+---------------------------
+• Évolution du taux d'utilisation (objectif: >70%)
+• Nombre de machines critiques (objectif: <10%)
+• Délai moyen de maintenance
+• Consommation énergétique par machine
+
+💡 CONCLUSION
+-------------
+Le parc nécessite une attention soutenue.
+Priorité: adresser les 10 machines critiques pour restaurer la capacité de production.
+Impact estimé: amélioration potentielle de 7% de la productivité.
+
+═══════════════════════════════════════════════════════════
+                    Rapport généré automatiquement
+═══════════════════════════════════════════════════════════
+
+
+--- Raisonnement Chain-of-Thought ---
+Confiance: HIGH
+
+## STEP 1 - UNDERSTAND THE PROBLEM:
+
+## STEP 2 - GATHER EVIDENCE:
+
+## STEP 3 - ANALYZE PATTERNS:
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    🎭 DÉBAT MULTI-PERSPECTIVES                    │
+└──────────────────────────────────────────────────────────────────┘
+
+Rounds de débat: 2
+Statut: success
+
+CONSENSUS:
+
+CONSENSUS SUMMARY (Fallback Mode)
+
+Topic: What should be the priority actions to improve facility performance?
+
+AREAS OF AGREEMENT:
+• All experts agree that data-driven decisions are essential
+• Machine health monitoring is critical
+• Balance between productivity and safety is needed
+
+RECOMMENDED ACTIONS:
+1. Address critical safety issues immediately
+2. Schedule maintenance for overdue machines
+3. Implement monitoring for high-risk equipment
+4. Review budget allocation for maintenance
+5. Develop preventive maintenance schedule
+
+RATIONALE:
+These recommendations balance operational needs with safety and cost considerations.
+
+
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    ⚡ DÉCISIONS STRATÉGIQUES                      │
+└──────────────────────────────────────────────────────────────────┘
+
+Niveau d'urgence global: HIGH
+Action immédiate requise: OUI
+
+1. 🟠 [P2] 🌡️ Surveiller températures (4 machines)
+   Catégorie: monitoring | Impact: MEDIUM
+2. 🟠 [P2] 📳 Diagnostic vibrations requis (4 machines)
+   Catégorie: diagnostic | Impact: MEDIUM
+3. 🟠 [P2] 📊 Audit approfondi recommandé suite à l'analyse IA
+   Catégorie: audit | Impact: MEDIUM
+4. 🟢 [P3] 🔨 Programmer maintenance (4 machines)
+   Catégorie: maintenance | Impact: LOW
+
+Facteurs de risque identifiés:
+  ⚠️ Vibration anomalies: 4
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    📋 PLAN D'ACTION                               │
+└──────────────────────────────────────────────────────────────────┘
+
+Objectif: Optimize facility performance and reduce critical machine count
+Statut: fallback
+
+
+### Phase 1: Immediate (0-7 days)
+• Inspect cooling systems on high-temperature machines
+• Schedule emergency maintenance for overdue machines
+
+### Phase 2: Short-term (1-4 weeks)
+• Implement preventive maintenance schedule
+• Train staff on anomaly detection procedures
+• Review and update safety protocols
+• Optimize machine utilization patterns
+
+### Phase 3: Medium-term (1-3 months)
+• Deploy predictive maintenance system
+• Upgrade monitoring infrastructure
+• Establish KPI dashboards for real-time tracking
+
+Métriques de succès:
+  ✓ Machine uptime > 85%
+  ✓ Zero safety incidents
+  ✓ Maintenance compliance > 95%
+  ✓ Energy efficiency improvement > 10%
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    🔄 TRAÇABILITÉ & VALIDATIONS                   │
+└──────────────────────────────────────────────────────────────────┘
+
+Validations effectuées: 4
+
+  ✅ [DataCollector] Loaded 75 rows
+  ✅ [Validator] Raw data validation
+  ❌ [Validator] Post-processing validation
+  ✅ [QualityControl] LLM validation (attempt 1)
+
+══════════════════════════════════════════════════════════════════
+                    FIN DU RAPPORT
+        
+        Généré le: 2025-12-25 21:45:35
+        Système: Multi-Agent Intelligent avec LLM
+        Version: 2.0
+        
+        Ce rapport a été généré automatiquement par le système
+        d'analyse multi-agent. Pour toute question, veuillez
+        contacter l'équipe de maintenance.
+══════════════════════════════════════════════════════════════════

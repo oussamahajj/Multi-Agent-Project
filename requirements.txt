@@ -1,0 +1,28 @@
+# Multi-Agent Industrial Monitoring System
+# Requirements file
+
+# Core Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.18.0
+matplotlib>=3.7.0
+
+# Web Framework
+streamlit>=1.29.0
+
+# Gemini LLM Integration
+google-genai>=0.3.0
+google-generativeai>=0.3.0
+
+# Utilities
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# Optional: Excel support
+openpyxl>=3.1.2
+
+# Optional: Advanced analytics
+scipy>=1.11.0
+scikit-learn>=1.3.0
