@@ -34,6 +34,7 @@ st.markdown("""
 <style>
     /* Import Google Fonts - Industrial/Technical Feel */
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0');
     
     /* Root Variables - Industrial Color Palette */
     :root {
@@ -79,10 +80,23 @@ st.markdown("""
         margin-bottom: 0.5rem !important;
     }
     
-    /* Body text */
-    p, span, div, label {
+    /* Body text - exclude Material Icons */
+    p, div, label {
         font-family: 'JetBrains Mono', monospace !important;
         color: var(--text-primary);
+    }
+
+    /* Spans - but not icon fonts */
+    span:not([class*="material"]):not([data-testid*="Icon"]) {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-primary);
+    }
+
+    /* Ensure Material Icons render correctly */
+    .material-icons,
+    .material-symbols-outlined,
+    [class*="Icon"] {
+        font-family: 'Material Icons', 'Material Symbols Outlined' !important;
     }
     
     /* Metric Cards */
@@ -202,12 +216,57 @@ st.markdown("""
     }
     
     /* Expanders */
-    .streamlit-expanderHeader {
+    [data-testid="stExpander"] {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    [data-testid="stExpander"] > details > summary {
         font-family: 'Outfit', sans-serif !important;
         font-weight: 600 !important;
         background: var(--bg-tertiary);
         border-radius: 12px;
         border: 1px solid var(--border-color);
+        padding: 1rem 1.2rem !important;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Hide the broken Material Icon text */
+    [data-testid="stExpander"] > details > summary > span:first-child,
+    [data-testid="stExpanderToggleIcon"] {
+        font-size: 0 !important;
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Add CSS arrow instead */
+    [data-testid="stExpander"] > details > summary > span:first-child::before,
+    [data-testid="stExpanderToggleIcon"]::before {
+        content: "▶";
+        font-size: 0.8rem;
+        color: var(--accent-cyan);
+        transition: transform 0.3s ease;
+    }
+
+    /* Rotate arrow when expanded */
+    [data-testid="stExpander"] > details[open] > summary > span:first-child::before,
+    [data-testid="stExpander"] > details[open] [data-testid="stExpanderToggleIcon"]::before {
+        transform: rotate(90deg);
+    }
+
+    /* Expander text label */
+    [data-testid="stExpander"] > details > summary > span:not(:first-child) {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1rem;
+        color: var(--text-primary) !important;
     }
     
     /* Progress Bar */
@@ -625,7 +684,7 @@ def main():
             """, unsafe_allow_html=True)
         
         # Sample data format
-        with st.expander("📋 Expected Data Format"):
+        with st.expander("Expected Data Format", icon="📋"):
             st.markdown("""
             Your CSV should contain these columns:
             - `Machine_ID` - Unique identifier
@@ -647,7 +706,7 @@ def main():
                 'Temperature_C': [45, 38, 52],
                 'Vibration_mms': [2.5, 1.8, 3.2]
             }
-            st.dataframe(pd.DataFrame(sample_data), use_container_width=True)
+            st.dataframe(pd.DataFrame(sample_data), width="stretch")
     
     else:
         # Process uploaded file
@@ -663,8 +722,8 @@ def main():
             col3.metric("Machine Types", df_raw['Machine_Type'].nunique() if 'Machine_Type' in df_raw.columns else "N/A")
             col4.metric("Missing Values", f"{df_raw.isnull().sum().sum():,}")
             
-            with st.expander("🔍 View Raw Data", expanded=False):
-                st.dataframe(df_raw.head(100), use_container_width=True)
+            with st.expander("View Raw Data", expanded=False, icon="🔍"):
+                st.dataframe(df_raw.head(100), width="stretch", key="raw_data_table")
             
             st.markdown("---")
             
@@ -673,7 +732,7 @@ def main():
             with col2:
                 run_analysis = st.button(
                     "🚀 LAUNCH MULTI-AGENT ANALYSIS",
-                    use_container_width=True
+                    width="stretch"
                 )
             
             if run_analysis:
@@ -757,7 +816,7 @@ def main():
                                     "Utilization %",
                                     100, "cyan"
                                 ),
-                                use_container_width=True
+                                width="stretch"
                             )
                         
                         with col2:
@@ -767,7 +826,7 @@ def main():
                                     "Health Score",
                                     100, "green"
                                 ),
-                                use_container_width=True
+                                width="stretch"
                             )
                         
                         with col3:
@@ -777,7 +836,7 @@ def main():
                                     "Stability Index",
                                     100, "orange"
                                 ),
-                                use_container_width=True
+                                width="stretch"
                             )
                         
                         with col4:
@@ -789,7 +848,7 @@ def main():
                                     "Critical %",
                                     100, "red"
                                 ),
-                                use_container_width=True
+                                width="stretch"
                             )
                         
                         # Machine scatter plot
@@ -797,7 +856,7 @@ def main():
                             st.markdown("### 🎯 Machine Distribution")
                             st.plotly_chart(
                                 create_machine_scatter(result['df']),
-                                use_container_width=True
+                                width="stretch"
                             )
                     
                     # Tab 2: Anomalies
@@ -811,7 +870,7 @@ def main():
                         with col1:
                             st.plotly_chart(
                                 create_anomaly_radar(anomalies),
-                                use_container_width=True
+                                width="stretch"
                             )
                         
                         with col2:
@@ -827,7 +886,7 @@ def main():
                                         'high_error_rate': '❌'
                                     }.get(key, '⚠️')
                                     
-                                    with st.expander(f"{icon} {key.replace('_', ' ').title()} ({len(machines)})"):
+                                    with st.expander(f"{key.replace('_', ' ').title()} ({len(machines)})", icon=icon):
                                         st.write(machines[:20])
                     
                     # Tab 3: AI Analysis
@@ -849,7 +908,7 @@ def main():
                             reasoning = result['reasoning']
                             st.markdown(f"**Confidence**: {reasoning.get('confidence', 'N/A')}")
                             
-                            with st.expander("View Reasoning Steps"):
+                            with st.expander("View Reasoning Steps", icon="🔗"):
                                 st.markdown(reasoning.get('reasoning_text', 'No reasoning available'))
                     
                     # Tab 4: Debate
@@ -864,7 +923,7 @@ def main():
                             # Show debate log
                             st.markdown("### Debate Transcript")
                             for entry in debate.get('debate_log', []):
-                                with st.expander(f"Round {entry['round']} - {entry['expert']}"):
+                                with st.expander(f"Round {entry['round']} - {entry['expert']}", icon="💬"):
                                     st.markdown(entry['argument'])
                             
                             # Show consensus
@@ -884,7 +943,7 @@ def main():
                             st.markdown(f"**Status**: {plan.get('status', 'N/A')}")
                             
                             for phase in plan.get('phases', []):
-                                with st.expander(f"📌 {phase.get('name', 'Phase')}", expanded=True):
+                                with st.expander(f"{phase.get('name', 'Phase')}", expanded=True, icon="📌"):
                                     st.markdown(phase.get('content', 'No content'))
                             
                             if plan.get('metrics'):
@@ -957,7 +1016,7 @@ def main():
                     
                     # Validation History
                     st.markdown("---")
-                    with st.expander("🔄 Validation History & Traceability"):
+                    with st.expander("Validation History & Traceability", icon="🔄"):
                         validation_summary = orchestrator.get_validation_summary() if 'orchestrator' in dir() else {}
                         
                         col1, col2, col3 = st.columns(3)
@@ -971,7 +1030,7 @@ def main():
                     
                     # Debug logs
                     if show_debug:
-                        with st.expander("🐛 Debug Logs"):
+                        with st.expander("Debug Logs", icon="🐛"):
                             for msg in result.get('agent_messages', []):
                                 st.text(f"[{msg.get('level')}][{msg.get('agent')}] {msg.get('message')}")
         

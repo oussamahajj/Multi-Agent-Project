@@ -3,6 +3,8 @@ LLM Insight Agent - Generates expert insights using Gemini LLM
 """
 
 import json
+import time
+import re
 from typing import Dict, Any, List, Optional
 from agents.base_agent import BaseAgent
 
@@ -26,6 +28,9 @@ class LLMInsightAgent(BaseAgent):
         self.model_name = "gemini-2.5-flash"
         self.insights_history = []
         
+        self.max_retries = 3
+        self.base_delay = 15  # seconds
+
         if GENAI_AVAILABLE and api_key:
             try:
                 self.client = genai.Client(api_key=api_key)
@@ -34,6 +39,33 @@ class LLMInsightAgent(BaseAgent):
                 self.send_message(f"⚠️ Failed to initialize Gemini: {e}", "WARNING")
         elif not api_key:
             self.send_message("⚠️ No API key provided - will use fallback mode", "WARNING")
+
+    def _call_with_retry(self, prompt: str) -> Optional[str]:
+        """Call Gemini API with retry logic for rate limits."""
+        for attempt in range(self.max_retries):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt
+                )
+                return response.text
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                    # Extract retry delay from error message if available
+                    delay = self.base_delay * (2 ** attempt)
+                    match = re.search(r'retry in (\d+\.?\d*)', error_str.lower())
+                    if match:
+                        delay = max(float(match.group(1)), delay)
+
+                    if attempt < self.max_retries - 1:
+                        self.send_message(f"⏳ Rate limited. Waiting {delay:.0f}s (attempt {attempt + 1}/{self.max_retries})...", "WARNING")
+                        time.sleep(delay)
+                    else:
+                        raise e
+                else:
+                    raise e
+        return None
     
     def interpret(self, summary: Dict[str, Any], anomalies: Dict[str, Any], 
                   df=None, top_n: int = 10) -> Dict[str, Any]:
@@ -57,30 +89,32 @@ class LLMInsightAgent(BaseAgent):
         
         try:
             if self.client:
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt
-                )
-                insight_text = response.text
-                status = "success"
-                self.send_message("✅ LLM insights generated successfully", "SUCCESS")
+                # Use retry logic for rate limits
+                insight_text = self._call_with_retry(prompt)
+                if insight_text:
+                    status = "success"
+                    self.send_message("✅ LLM insights generated successfully", "SUCCESS")
+                else:
+                    insight_text = self._generate_fallback_insights(summary, anomalies)
+                    status = "fallback"
+                    self.send_message("⚠️ Using fallback insights (retry failed)", "WARNING")
             else:
                 insight_text = self._generate_fallback_insights(summary, anomalies)
                 status = "fallback"
                 self.send_message("⚠️ Using fallback insights (no LLM)", "WARNING")
-            
+
             result = {
                 "text": insight_text,
                 "status": status,
                 "model": self.model_name if status == "success" else "fallback"
             }
-            
+
             self.insights_history.append(result)
             self.set_state("completed")
             self.update_shared_context("llm_insights", result)
-            
+
             return result
-            
+
         except Exception as e:
             self.send_message(f"❌ LLM error: {e}", "ERROR")
             fallback = self._generate_fallback_insights(summary, anomalies)

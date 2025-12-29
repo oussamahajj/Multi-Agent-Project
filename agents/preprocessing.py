@@ -18,7 +18,7 @@ class PreprocessingAgent(BaseAgent):
         super().__init__(name, role="Data Engineering Specialist")
         self.cleaning_report = {}
         
-        # Columns that should be numeric
+        # Columns that should be numeric (base list + machine-specific)
         self.numeric_columns = [
             'Operational_Hours', 'Power_Consumption_kW', 'Temperature_C',
             'Vibration_mms', 'Sound_dB', 'AI_Override_Events',
@@ -26,7 +26,12 @@ class PreprocessingAgent(BaseAgent):
             'Last_Maintenance_Days_Ago', 'Maintenance_History_Count',
             'Failure_History_Count', 'Error_Codes_Last_30_Days',
             'Remaining_Useful_Life_days', 'Laser_Intensity',
-            'Hydraulic_Pressure_bar', 'Coolant_Flow_L_min', 'Heat_Index'
+            'Hydraulic_Pressure_bar', 'Coolant_Flow_L_min', 'Heat_Index',
+            # Machine-specific columns
+            'Joint_Accuracy_mm', 'Cycle_Time_sec', 'Pressure_Bar',
+            'Air_Flow_m3h', 'Spindle_Speed_RPM', 'Tool_Wear_pct',
+            'Cutting_Speed_mmin', 'Feed_Rate_mmrev', 'Belt_Speed_ms',
+            'Load_Capacity_pct', 'Arm_Reach_mm', 'Gripper_Force_N'
         ]
     
     def clean_data(self, validation_result: Dict[str, Any]) -> Dict[str, Any]:
@@ -159,15 +164,32 @@ class PreprocessingAgent(BaseAgent):
     def _fill_missing_values(self, df: pd.DataFrame) -> Optional[str]:
         """Fill missing values with appropriate strategies."""
         fill_count = 0
-        
-        # Numeric columns: fill with median
+
+        # First: handle predefined numeric columns
         for col in self.numeric_columns:
             if col in df.columns:
                 null_count = df[col].isnull().sum()
                 if null_count > 0:
-                    df[col] = df[col].fillna(df[col].median())
+                    median_val = df[col].median()
+                    if pd.isna(median_val):
+                        # If all values are NaN, use 0
+                        df[col] = df[col].fillna(0)
+                    else:
+                        df[col] = df[col].fillna(median_val)
                     fill_count += null_count
-        
+
+        # Second: handle ANY remaining numeric columns with NaN
+        for col in df.columns:
+            if pd.api.types.is_numeric_dtype(df[col]):
+                null_count = df[col].isnull().sum()
+                if null_count > 0:
+                    median_val = df[col].median()
+                    if pd.isna(median_val):
+                        df[col] = df[col].fillna(0)
+                    else:
+                        df[col] = df[col].fillna(median_val)
+                    fill_count += null_count
+
         # Boolean columns: fill with mode
         bool_cols = ['AI_Supervision', 'Failure_Within_7_Days']
         for col in bool_cols:
@@ -177,7 +199,7 @@ class PreprocessingAgent(BaseAgent):
                     mode_val = df[col].mode()[0] if len(df[col].mode()) > 0 else False
                     df[col] = df[col].fillna(mode_val)
                     fill_count += null_count
-        
+
         if fill_count > 0:
             return f"Filled {fill_count} missing values (median for numeric, mode for boolean)"
         return None

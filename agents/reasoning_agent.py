@@ -4,6 +4,8 @@ This agent provides structured reasoning capabilities for complex analysis tasks
 """
 
 import json
+import time
+import re
 from typing import Dict, Any, List, Optional
 from agents.base_agent import BaseAgent
 
@@ -27,12 +29,41 @@ class ReasoningAgent(BaseAgent):
         self.model_name = "gemini-2.5-flash"
         self.reasoning_history = []
         
+        self.max_retries = 3
+        self.base_delay = 15  # seconds
+
         if GENAI_AVAILABLE and api_key:
             try:
                 self.client = genai.Client(api_key=api_key)
                 self.send_message("✅ Gemini client initialized successfully", "SUCCESS")
             except Exception as e:
                 self.send_message(f"⚠️ Failed to initialize Gemini client: {e}", "WARNING")
+
+    def _call_with_retry(self, prompt: str) -> Optional[str]:
+        """Call Gemini API with retry logic for rate limits."""
+        for attempt in range(self.max_retries):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt
+                )
+                return response.text
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                    delay = self.base_delay * (2 ** attempt)
+                    match = re.search(r'retry in (\d+\.?\d*)', error_str.lower())
+                    if match:
+                        delay = max(float(match.group(1)), delay)
+
+                    if attempt < self.max_retries - 1:
+                        self.send_message(f"⏳ Rate limited. Waiting {delay:.0f}s (attempt {attempt + 1}/{self.max_retries})...", "WARNING")
+                        time.sleep(delay)
+                    else:
+                        raise e
+                else:
+                    raise e
+        return None
     
     def reason(self, context: Dict[str, Any], question: str) -> Dict[str, Any]:
         """
@@ -53,27 +84,26 @@ class ReasoningAgent(BaseAgent):
         
         try:
             if self.client:
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt
-                )
-                reasoning_text = response.text
+                # Use retry logic for rate limits
+                reasoning_text = self._call_with_retry(prompt)
+                if not reasoning_text:
+                    return self._fallback_reasoning(context, question)
             else:
-                reasoning_text = self._fallback_reasoning(context, question)
-            
+                return self._fallback_reasoning(context, question)
+
             # Parse the reasoning into structured format
             result = self._parse_reasoning(reasoning_text, context)
-            
+
             self.reasoning_history.append({
                 'question': question,
                 'result': result
             })
-            
+
             self.set_state("completed")
             self.send_message("✅ Chain-of-Thought reasoning completed", "SUCCESS")
-            
+
             return result
-            
+
         except Exception as e:
             self.send_message(f"❌ Reasoning error: {e}", "ERROR")
             return self._fallback_reasoning(context, question)

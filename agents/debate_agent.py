@@ -4,7 +4,9 @@ This agent simulates debates between different expert perspectives using Gemini 
 """
 
 import json
-from typing import Dict, Any, List, Tuple
+import time
+import re
+from typing import Dict, Any, List, Tuple, Optional
 from agents.base_agent import BaseAgent
 
 try:
@@ -51,12 +53,41 @@ class DebateAgent(BaseAgent):
             }
         }
         
+        self.max_retries = 3
+        self.base_delay = 15  # seconds
+
         if GENAI_AVAILABLE and api_key:
             try:
                 self.client = genai.Client(api_key=api_key)
                 self.send_message("✅ Debate Agent initialized with Gemini", "SUCCESS")
             except Exception as e:
                 self.send_message(f"⚠️ Failed to initialize Gemini client: {e}", "WARNING")
+
+    def _call_with_retry(self, prompt: str) -> Optional[str]:
+        """Call Gemini API with retry logic for rate limits."""
+        for attempt in range(self.max_retries):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt
+                )
+                return response.text
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                    delay = self.base_delay * (2 ** attempt)
+                    match = re.search(r'retry in (\d+\.?\d*)', error_str.lower())
+                    if match:
+                        delay = max(float(match.group(1)), delay)
+
+                    if attempt < self.max_retries - 1:
+                        self.send_message(f"⏳ Rate limited. Waiting {delay:.0f}s (attempt {attempt + 1}/{self.max_retries})...", "WARNING")
+                        time.sleep(delay)
+                    else:
+                        raise e
+                else:
+                    raise e
+        return None
     
     def conduct_debate(self, context: Dict[str, Any], topic: str, rounds: int = 2) -> Dict[str, Any]:
         """
@@ -163,17 +194,16 @@ YOUR ARGUMENT:"""
         
         try:
             if self.client:
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt
-                )
-                return response.text
+                result = self._call_with_retry(prompt)
+                if result:
+                    return result
+                return self._fallback_argument(expert, topic, context)
             else:
                 return self._fallback_argument(expert, topic, context)
         except Exception as e:
             self.send_message(f"⚠️ Error generating argument: {e}", "WARNING")
             return self._fallback_argument(expert, topic, context)
-    
+
     def _get_expert_rebuttal(self, context: Dict[str, Any], topic: str,
                              expert: Dict[str, str], other_arguments: List[Dict],
                              round_num: int) -> str:
@@ -207,16 +237,15 @@ YOUR REBUTTAL:"""
         
         try:
             if self.client:
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt
-                )
-                return response.text
+                result = self._call_with_retry(prompt)
+                if result:
+                    return result
+                return f"[{expert['name']}] Acknowledges other perspectives while maintaining focus on {expert['focus']}."
             else:
                 return f"[{expert['name']}] Acknowledges other perspectives while maintaining focus on {expert['focus']}."
         except Exception as e:
             return f"[{expert['name']}] Technical response focused on {expert['focus']}."
-    
+
     def _synthesize_consensus(self, context: Dict[str, Any], topic: str,
                               expert_arguments: Dict[str, List[str]]) -> Dict[str, Any]:
         """Synthesize debate into consensus conclusions."""
@@ -254,24 +283,22 @@ FORMAT your response with these exact headers."""
         
         try:
             if self.client:
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt
-                )
-                consensus_text = response.text
+                consensus_text = self._call_with_retry(prompt)
+                if not consensus_text:
+                    consensus_text = self._fallback_consensus(topic, expert_arguments)
             else:
                 consensus_text = self._fallback_consensus(topic, expert_arguments)
-            
+
             return {
                 'text': consensus_text,
-                'status': 'success'
+                'status': 'success' if self.client else 'fallback'
             }
         except Exception as e:
             return {
                 'text': self._fallback_consensus(topic, expert_arguments),
                 'status': 'fallback'
             }
-    
+
     def _fallback_argument(self, expert: Dict[str, str], topic: str, 
                            context: Dict[str, Any]) -> str:
         """Generate fallback argument when LLM unavailable."""
